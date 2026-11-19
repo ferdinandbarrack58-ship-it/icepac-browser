@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICEPAC BROWSER</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header class="top-bar">
+        <div class="brand">
+            <span class="brand-icon">❄</span>
+            <span>ICE BROWSER</span>
+        </div>
+
+        <div class="navigation">
+            <button id="backBtn">←</button>
+            <button id="forwardBtn">→</button>
+            <button id="reloadBtn">⟳</button>
+        </div>
+
+        <form id="addressForm">
+            <input
+                type="text"
+                id="addressBar"
+                placeholder="Search Google or enter a website address..."
+            >
+            <button type="submit">GO</button>
+        </form>
+
+        <button id="homeBtn">⌂</button>
+    </header>
+npm.cmd start
+    <main id="homePage">
+        <section class="hero">
+            <h1>WELCOME TO <span>ICEPAC</span></h1></h1>
+            <p>Your world. Your browser. Your freedom.</p>
+
+            <form id="homeSearchForm">
+                <input
+                    type="text"
+                    id="homeSearch"
+                    placeholder="What are you looking for?"
+                >
+                <button type="submit">SEARCH</button>
+            </form>
+
+            <div class="quick-links">
+                <a href="https://www.google.com">Google</a>
+                <a href="https://www.youtube.com">YouTube</a>
+                <a href="https://github.com">GitHub</a>
+                <a href="https://www.wikipedia.org">Wikipedia</a>
+            </div>
+        </section>
+    </main>
+
+    <section id="browserPage">
+        <webview
+            id="webview"
+            src="about:blank"
+            partition="persist:ice">
+        </webview>
+    </section>
+
+    <script src="renderer.js"></script>
+
+</body>
+</html>

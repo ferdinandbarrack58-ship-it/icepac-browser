@@ -1,0 +1,22 @@
+{"build": {
+  "appId": "com.icepac.browser",
+  "productName": "ICEPAC BROWSER",
+  "win": { "target": ["nsis", "portable"] }
+},
+  "name": "icepac-browse",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^45.3.2",
+    "electron-builder": "^26.18.0"
+  }
+}

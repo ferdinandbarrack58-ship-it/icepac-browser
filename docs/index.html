@@ -104,7 +104,7 @@ const save = () => ls.set(key(), data);
 const url = $('url'), home = $('home'), bar = $('bar'), main = $('main');
 
 function el(tag, props = {}, ...kids) { const e = document.createElement(tag); Object.assign(e, props); kids.forEach(k => e.append(k)); return e; }
-function say(t) { const x = $('toast'); x.textContent = t; x.style.opacity = 1; setTimeout(() => x.style.opacity = 0, 2400); }
+function say(t) { const er = $('err'); if (er) er.textContent = t; const x = $('toast'); x.textContent = t; x.style.opacity = 1; setTimeout(() => x.style.opacity = 0, 2400); }
 function normalize(v) {
   v = v.trim(); if (!v) return '';
   if (/^https?:\/\//i.test(v)) return v;
@@ -125,10 +125,21 @@ function newTab(u) {
   const t = { id: nid++, url: '', hist: [''], idx: 0, frame: null, title: 'New tab' };
   tabs.push(t); select(t.id); if (u) go(u);
 }
+function showBlocked() {
+  let b = $('blockedPane');
+  if (!b) { b = el('div', { id: 'blockedPane', style: 'padding:40px 20px;text-align:center' }); main.append(b); }
+  b.replaceChildren();
+  if (active.blocked) {
+    b.append(el('h2', { textContent: host(active.url) }),
+      el('p', { textContent: 'This site does not allow being shown inside another page, so it opens in your browser instead. Tap below to open it again.' }),
+      el('button', { className: 'dl', textContent: 'Open ' + host(active.url), onclick: () => window.open(active.url, '_blank', 'noopener') }));
+    b.style.display = 'block';
+  } else b.style.display = 'none';
+}
 function select(id) {
   active = tabs.find(t => t.id === id);
-  tabs.forEach(t => { if (t.frame) t.frame.style.display = (t === active && t.url) ? 'block' : 'none'; });
-  home.style.display = active.url ? 'none' : 'block';
+  tabs.forEach(t => { if (t.frame) t.frame.style.display = (t === active && t.url && !t.blocked) ? 'block' : 'none'; });
+  home.style.display = active.url ? 'none' : 'block'; showBlocked();
   url.value = active.url; renderTabs(); buttons(); updateStar();
 }
 function closeTab(id) {
@@ -144,7 +155,7 @@ function renderTabs() {
     el('b', { textContent: '\u2715', onclick: e => { e.stopPropagation(); closeTab(t.id); } }))));
   box.append(el('button', { id: 'newtab', textContent: '+', onclick: () => newTab() }));
 }
-function show(t, u) {
+function show(t, u) { t.blocked = false;
   t.url = u; t.title = u ? host(u) : 'New tab';
   if (u) {
     if (!t.frame) { t.frame = el('iframe', { referrerPolicy: 'no-referrer' }); main.append(t.frame); t.frame.addEventListener('load', () => { if (t === active) { bar.style.width = '100%'; setTimeout(() => bar.style.width = '0', 400); } }); }
@@ -155,7 +166,7 @@ function show(t, u) {
 }
 function go(v) {
   const u = normalize(v); if (!u) return;
-  if (isBlocked(u)) { window.open(u, '_blank', 'noopener'); say('Opened in a new browser tab'); return; }
+  if (isBlocked(u)) { active.hist = active.hist.slice(0, active.idx + 1); active.hist.push(u); active.idx = active.hist.length - 1; active.url = u; active.title = host(u); active.blocked = true; select(active.id); window.open(u, '_blank', 'noopener'); return; }
   active.hist = active.hist.slice(0, active.idx + 1); active.hist.push(u); active.idx = active.hist.length - 1; show(active, u);
 }
 function buttons() { $('back').disabled = active.idx === 0; $('fwd').disabled = active.idx >= active.hist.length - 1; }
@@ -205,7 +216,7 @@ function afterAuth(msg) {
   renderMarks(); updateStar(); closeSheet(); if (msg) say(msg);
 }
 async function signup() {
-  const n = $('u').value.trim().toLowerCase(), p = $('p').value;
+  const n = $('u').value.trim().toLowerCase().replace(/^@+/, ''), p = $('p').value;
   if (!/^[a-z0-9_]{3,20}$/.test(n)) return say('Username: 3-20 letters, numbers or _');
   if (p.length < 6) return say('Password needs 6+ characters');
   const users = ls.get('icepac_users', {});
@@ -215,7 +226,7 @@ async function signup() {
   const keep = data; user = n; ls.set(key(), keep); afterAuth('Account created');
 }
 async function signin() {
-  const n = $('u').value.trim().toLowerCase(), p = $('p').value;
+  const n = $('u').value.trim().toLowerCase().replace(/^@+/, ''), p = $('p').value;
   const users = ls.get('icepac_users', {}), rec = users[n];
   if (!rec || (await hash(p, rec.salt)) !== rec.hash) return say('Wrong username or password');
   user = n; afterAuth('Signed in as ' + n);
@@ -226,11 +237,11 @@ function acctSheet() {
       b.append(el('p', { textContent: 'Signed in as ' + user + '. Your bookmarks are saved to this account on this device.' }),
         el('button', { className: 'dl', textContent: 'Sign out', onclick: () => { user = null; afterAuth('Signed out'); } }));
     } else {
-      b.append(el('input', { id: 'u', placeholder: 'Username', autocapitalize: 'off', autocomplete: 'username' }),
+      b.append(el('input', { id: 'u', placeholder: 'Username (letters, numbers, _)', autocapitalize: 'off', autocomplete: 'username' }),
         el('input', { id: 'p', type: 'password', placeholder: 'Password (6+ characters)', autocomplete: 'current-password' }),
         el('button', { className: 'dl', textContent: 'Sign in', onclick: signin }),
         el('button', { className: 'dl', textContent: 'Create account', onclick: signup }),
-        el('p', { textContent: 'Accounts are stored on this device only and do not sync to other devices. Your guest bookmarks carry over when you create an account.' }));
+        el('p', { id: 'err', style: 'color:#ff8a8a;margin:4px 0;min-height:1.2em' }), el('p', { textContent: 'Accounts are stored on this device only and do not sync to other devices. Your guest bookmarks carry over when you create an account.' }));
     }
   });
 }

@@ -8,64 +8,100 @@
 <title>Icepac Browser</title>
 <style>
   :root { --bg:#06121f; --panel:#0d2238; --line:#1b4a6b; --ice:#5ce1ff; --text:#e6f6ff; }
-  * { box-sizing:border-box; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:system-ui,sans-serif; }
-  body { display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+  body { display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); }
   header { display:flex; gap:8px; padding:10px; background:var(--panel); border-bottom:1px solid var(--line); box-shadow:0 0 18px rgba(92,225,255,.15); }
   input { flex:1; min-width:0; padding:12px 14px; border-radius:999px; border:1px solid var(--line); background:#081a2c; color:var(--text); font-size:16px; outline:none; }
   input:focus { border-color:var(--ice); box-shadow:0 0 12px rgba(92,225,255,.5); }
-  button { padding:0 14px; border-radius:999px; border:1px solid var(--ice); background:transparent; color:var(--ice); font-size:15px; }
-  button:active { background:var(--ice); color:var(--bg); }
+  .go { padding:0 16px; border-radius:999px; border:1px solid var(--ice); background:transparent; color:var(--ice); font-size:15px; }
+  .go:active { background:var(--ice); color:var(--bg); }
   #bar { height:2px; background:var(--ice); width:0; transition:width .4s; box-shadow:0 0 8px var(--ice); }
-  main { flex:1; position:relative; }
+  main { flex:1; position:relative; overflow:auto; }
   iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#fff; display:none; }
-  #home { padding:24px 16px; text-align:center; }
-  h1 { color:var(--ice); letter-spacing:3px; text-shadow:0 0 14px rgba(92,225,255,.6); }
-  .links { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:20px; }
-  .links a { padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--text); text-decoration:none; }
-  small { display:block; margin-top:18px; opacity:.6; }
+  #home { padding:22px 16px; text-align:center; }
+  h1 { color:var(--ice); letter-spacing:4px; text-shadow:0 0 14px rgba(92,225,255,.6); margin:4px 0 18px; }
+  .links { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; }
+  .links a { display:flex; align-items:center; justify-content:center; gap:10px; padding:20px 10px; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--text); text-decoration:none; font-size:17px; }
+  .links a:active { border-color:var(--ice); box-shadow:0 0 12px rgba(92,225,255,.4); }
+  .dot { width:12px; height:12px; border-radius:50%; background:var(--c); box-shadow:0 0 8px var(--c); }
+  h2 { font-size:13px; letter-spacing:2px; opacity:.6; margin:24px 0 10px; font-weight:600; }
+  small { display:block; margin-top:20px; opacity:.55; line-height:1.4; }
+  nav { display:flex; justify-content:space-around; background:var(--panel); border-top:1px solid var(--line); padding:6px 4px calc(6px + env(safe-area-inset-bottom)); }
+  nav button { flex:1; background:none; border:0; color:var(--ice); font-size:22px; padding:10px 0; }
+  nav button span { display:block; font-size:10px; opacity:.7; margin-top:2px; }
+  nav button:active { background:rgba(92,225,255,.15); border-radius:12px; }
+  nav button:disabled { opacity:.3; }
+  #toast { position:fixed; left:50%; bottom:90px; transform:translateX(-50%); background:var(--panel); border:1px solid var(--ice); padding:10px 16px; border-radius:999px; font-size:14px; opacity:0; transition:opacity .3s; pointer-events:none; }
 </style>
 </head>
 <body>
 <header>
   <input id="url" placeholder="Search or enter address" autocomplete="off" autocapitalize="off" inputmode="url">
-  <button id="go">Go</button>
-  <button id="out" title="Open in new tab">&#8599;</button>
+  <button class="go" id="go">Go</button>
 </header>
 <div id="bar"></div>
 <main>
   <div id="home">
     <h1>ICEPAC</h1>
     <div class="links">
-      <a href="#" data-u="https://en.wikipedia.org">Wikipedia</a>
-      <a href="#" data-u="https://duckduckgo.com">DuckDuckGo</a>
-      <a href="#" data-u="https://example.com">Example</a>
-      <a href="#" data-u="https://news.ycombinator.com">Hacker News</a>
+      <a href="#" data-u="https://www.google.com"><i class="dot" style="--c:#4285f4"></i>Google</a>
+      <a href="#" data-u="https://m.youtube.com"><i class="dot" style="--c:#ff0033"></i>YouTube</a>
+      <a href="#" data-u="https://www.tiktok.com"><i class="dot" style="--c:#25f4ee"></i>TikTok</a>
+      <a href="#" data-u="https://www.instagram.com"><i class="dot" style="--c:#e1306c"></i>Instagram</a>
     </div>
-    <small>Some sites block embedding. Use the &#8599; button to open them in a new tab.</small>
+    <h2>OPENS INSIDE ICEPAC</h2>
+    <div class="links">
+      <a href="#" data-u="https://en.wikipedia.org"><i class="dot" style="--c:#aaa"></i>Wikipedia</a>
+      <a href="#" data-u="https://example.com"><i class="dot" style="--c:#5ce1ff"></i>Example</a>
+    </div>
+    <small>Google, YouTube, TikTok and Instagram block embedding, so they open in a new tab (or their app). Searches go to Google.</small>
   </div>
   <iframe id="view" referrerpolicy="no-referrer"></iframe>
 </main>
+<nav>
+  <button id="back" disabled>&#9664;<span>Back</span></button>
+  <button id="fwd" disabled>&#9654;<span>Forward</span></button>
+  <button id="homeBtn">&#8962;<span>Home</span></button>
+  <button id="reload">&#10227;<span>Reload</span></button>
+  <button id="out">&#8599;<span>Open</span></button>
+</nav>
+<div id="toast"></div>
 <script>
-  const url = document.getElementById('url'), view = document.getElementById('view'),
-        home = document.getElementById('home'), bar = document.getElementById('bar');
-  let current = '';
+  const $ = id => document.getElementById(id);
+  const url = $('url'), view = $('view'), home = $('home'), bar = $('bar'), toast = $('toast');
+  const BLOCKED = ['google.', 'youtube.', 'youtu.be', 'tiktok.', 'instagram.', 'facebook.', 'x.com', 'twitter.'];
+  let hist = [''], idx = 0;
+
   function normalize(v) {
     v = v.trim(); if (!v) return '';
     if (/^https?:\/\//i.test(v)) return v;
     if (/^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(v)) return 'https://' + v;
-    return 'https://duckduckgo.com/?q=' + encodeURIComponent(v);
+    return 'https://www.google.com/search?q=' + encodeURIComponent(v);
   }
-  function load(v) {
-    const u = normalize(v); if (!u) return;
-    current = u; url.value = u; home.style.display = 'none'; view.style.display = 'block';
+  const isBlocked = u => { try { const h = new URL(u).hostname; return BLOCKED.some(b => h.includes(b)); } catch { return false; } };
+  function say(t) { toast.textContent = t; toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2200); }
+  function buttons() { $('back').disabled = idx === 0; $('fwd').disabled = idx >= hist.length - 1; }
+
+  function show(u) {
+    if (!u) { view.style.display = 'none'; view.src = 'about:blank'; home.style.display = 'block'; url.value = ''; return; }
+    home.style.display = 'none'; view.style.display = 'block'; url.value = u;
     bar.style.width = '30%'; view.src = u;
   }
+  function go(v) {
+    const u = normalize(v); if (!u) return;
+    if (isBlocked(u)) { window.open(u, '_blank', 'noopener'); say('Opened in a new tab'); return; }
+    hist = hist.slice(0, idx + 1); hist.push(u); idx = hist.length - 1; show(u); buttons();
+  }
   view.addEventListener('load', () => { bar.style.width = '100%'; setTimeout(() => bar.style.width = '0', 400); });
-  document.getElementById('go').onclick = () => load(url.value);
-  url.addEventListener('keydown', e => { if (e.key === 'Enter') load(url.value); });
-  document.getElementById('out').onclick = () => window.open(current || normalize(url.value) || 'about:blank', '_blank', 'noopener');
-  document.querySelectorAll('[data-u]').forEach(a => a.onclick = e => { e.preventDefault(); load(a.dataset.u); });
+  $('go').onclick = () => go(url.value);
+  url.addEventListener('keydown', e => { if (e.key === 'Enter') { go(url.value); url.blur(); } });
+  $('back').onclick = () => { if (idx > 0) { idx--; show(hist[idx]); buttons(); } };
+  $('fwd').onclick = () => { if (idx < hist.length - 1) { idx++; show(hist[idx]); buttons(); } };
+  $('homeBtn').onclick = () => { hist = hist.slice(0, idx + 1); if (hist[idx] !== '') { hist.push(''); idx++; } show(''); buttons(); };
+  $('reload').onclick = () => { if (hist[idx]) { bar.style.width = '30%'; view.src = hist[idx]; } };
+  $('out').onclick = () => { const u = hist[idx] || normalize(url.value); if (u) window.open(u, '_blank', 'noopener'); else say('Nothing to open yet'); };
+  document.querySelectorAll('[data-u]').forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.u); });
 </script>
 </body>
 </html>

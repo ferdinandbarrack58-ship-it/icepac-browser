@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#06121f">
+<link rel="manifest" href="manifest.json">
+<title>Icepac Browser</title>
+<style>
+  :root { --bg:#06121f; --panel:#0d2238; --line:#1b4a6b; --ice:#5ce1ff; --text:#e6f6ff; }
+  * { box-sizing:border-box; }
+  html,body { height:100%; margin:0; background:var(--bg); color:var(--text); font-family:system-ui,sans-serif; }
+  body { display:flex; flex-direction:column; padding-top:env(safe-area-inset-top); padding-bottom:env(safe-area-inset-bottom); }
+  header { display:flex; gap:8px; padding:10px; background:var(--panel); border-bottom:1px solid var(--line); box-shadow:0 0 18px rgba(92,225,255,.15); }
+  input { flex:1; min-width:0; padding:12px 14px; border-radius:999px; border:1px solid var(--line); background:#081a2c; color:var(--text); font-size:16px; outline:none; }
+  input:focus { border-color:var(--ice); box-shadow:0 0 12px rgba(92,225,255,.5); }
+  button { padding:0 14px; border-radius:999px; border:1px solid var(--ice); background:transparent; color:var(--ice); font-size:15px; }
+  button:active { background:var(--ice); color:var(--bg); }
+  #bar { height:2px; background:var(--ice); width:0; transition:width .4s; box-shadow:0 0 8px var(--ice); }
+  main { flex:1; position:relative; }
+  iframe { position:absolute; inset:0; width:100%; height:100%; border:0; background:#fff; display:none; }
+  #home { padding:24px 16px; text-align:center; }
+  h1 { color:var(--ice); letter-spacing:3px; text-shadow:0 0 14px rgba(92,225,255,.6); }
+  .links { display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-top:20px; }
+  .links a { padding:16px; border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--text); text-decoration:none; }
+  small { display:block; margin-top:18px; opacity:.6; }
+</style>
+</head>
+<body>
+<header>
+  <input id="url" placeholder="Search or enter address" autocomplete="off" autocapitalize="off" inputmode="url">
+  <button id="go">Go</button>
+  <button id="out" title="Open in new tab">&#8599;</button>
+</header>
+<div id="bar"></div>
+<main>
+  <div id="home">
+    <h1>ICEPAC</h1>
+    <div class="links">
+      <a href="#" data-u="https://en.wikipedia.org">Wikipedia</a>
+      <a href="#" data-u="https://duckduckgo.com">DuckDuckGo</a>
+      <a href="#" data-u="https://example.com">Example</a>
+      <a href="#" data-u="https://news.ycombinator.com">Hacker News</a>
+    </div>
+    <small>Some sites block embedding. Use the &#8599; button to open them in a new tab.</small>
+  </div>
+  <iframe id="view" referrerpolicy="no-referrer"></iframe>
+</main>
+<script>
+  const url = document.getElementById('url'), view = document.getElementById('view'),
+        home = document.getElementById('home'), bar = document.getElementById('bar');
+  let current = '';
+  function normalize(v) {
+    v = v.trim(); if (!v) return '';
+    if (/^https?:\/\//i.test(v)) return v;
+    if (/^[\w-]+(\.[\w-]+)+(\/.*)?$/.test(v)) return 'https://' + v;
+    return 'https://duckduckgo.com/?q=' + encodeURIComponent(v);
+  }
+  function load(v) {
+    const u = normalize(v); if (!u) return;
+    current = u; url.value = u; home.style.display = 'none'; view.style.display = 'block';
+    bar.style.width = '30%'; view.src = u;
+  }
+  view.addEventListener('load', () => { bar.style.width = '100%'; setTimeout(() => bar.style.width = '0', 400); });
+  document.getElementById('go').onclick = () => load(url.value);
+  url.addEventListener('keydown', e => { if (e.key === 'Enter') load(url.value); });
+  document.getElementById('out').onclick = () => window.open(current || normalize(url.value) || 'about:blank', '_blank', 'noopener');
+  document.querySelectorAll('[data-u]').forEach(a => a.onclick = e => { e.preventDefault(); load(a.dataset.u); });
+</script>
+</body>
+</html>

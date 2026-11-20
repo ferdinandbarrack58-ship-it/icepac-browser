@@ -1,0 +1,8 @@
+﻿{
+  "name": "Icepac Browser",
+  "short_name": "Icepac",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#06121f",
+  "theme_color": "#06121f"
+}

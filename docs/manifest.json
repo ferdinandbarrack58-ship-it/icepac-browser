@@ -2,7 +2,9 @@
   "name": "Icepac Browser",
   "short_name": "Icepac",
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
   "background_color": "#06121f",
-  "theme_color": "#06121f"
+  "theme_color": "#06121f",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
 }

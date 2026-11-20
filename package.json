@@ -1,20 +1,27 @@
-{"build": {
-  "appId": "com.icepac.browser",
-  "productName": "ICEPAC BROWSER",
-  "win": { "target": ["nsis", "portable"] }
-},
-  "name": "icepac-browse",
+{
+  "name": "icepac-browser",
   "version": "1.0.0",
-  "description": "",
+  "description": "Icepac Browser",
   "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
-  },
-  "keywords": [],
-  "author": "",
+  "author": "Ferdinand Barrack",
   "license": "ISC",
   "type": "commonjs",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.icepac.browser",
+    "productName": "ICEPAC BROWSER",
+    "artifactName": "Icepac-Browser-Setup-${version}.exe",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  },
   "devDependencies": {
     "electron": "^45.3.2",
     "electron-builder": "^26.18.0"
